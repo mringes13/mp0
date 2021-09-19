@@ -127,7 +127,7 @@ func plot(gmpToRuntime map[int]int64) {
 			},
 		),
 		charts.WithXAxisOpts(opts.XAxis{
-			Name: "GPU CORES",
+			Name: "CPU Threads",
 		}),
 		charts.WithYAxisOpts(opts.YAxis{
 			Name: "Time(μs)",
@@ -144,7 +144,7 @@ func plot(gmpToRuntime map[int]int64) {
 		}),
 	)
 	// Where the magic happens
-	f, _ := os.Create("bar.html")
+	f, _ := os.Create("gomaxprocsvsruntime.html")
 	scatter.Render(f)
 
 }
@@ -152,13 +152,13 @@ func plot(gmpToRuntime map[int]int64) {
 // Sets the GOMAXPROCS value, and parallelizes ping command while increasing GOMAXPROCS value by one
 // in each thread.
 func main() {
-	var gmpToRuntime = make(map[int]int64) // Create an int slice to map GOMAXPROCS values to runtime in nanoseconds.
-
-	gmp := MaxParallelism() // Set the max GOMAXPROCS value
-
 	//Initializing necessary variables
 	var input string
 	var inputsplice []string
+	var inputgomaxprocs []string
+	var i int = 0
+	var gmpToRuntime = make(map[int]int64) // Create an int slice to map GOMAXPROCS values to runtime in microseconds.
+	gmp := MaxParallelism()                // Set the max GOMAXPROCS value
 
 	//Saving desired websites from a user to variables
 	fmt.Printf("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -\n")
@@ -168,26 +168,31 @@ func main() {
 	input, _ = in.ReadString('\n')
 	input = strings.TrimSuffix(input, "\n")
 	inputsplice = strings.Split(input, " ")
-	var inputgomaxprocs []string = inputsplice
+	if inputsplice[0] != "q" {
+		inputgomaxprocs = inputsplice
+		// Iterate through every possible value of GOMAXPROCS and run Pinger program for just the first entered website.
+		// Return the runtime of each iteration.
+		fmt.Printf("(1) We will now compare the runtime of the program against all possible values of GOMAXPROCS. \n")
+		for i < gmp+1 {
+			fmt.Printf("CPU threads currently beig tested: %d \n", i)
+			start := time.Now()
+			Pinger(i, inputgomaxprocs)
+			duration := time.Since(start)
+			gmpToRuntime[i] = duration.Microseconds()
+			i++
+		}
+		fmt.Printf("The output for the comparison between GOMAXPROCS and the program run time has completed. An HTML file with the results has been created. \n\n\n")
 
-	// Iterate through every possible value of GOMAXPROCS and run Pinger program for just the first entered website.
-	// Return the runtime of each iteration.
-	fmt.Printf("(1) We will now compare the runtime of the program against all possible values of GOMAXPROCS. \n")
-	i := 0
-	for i < gmp+1 {
-		fmt.Printf("CPU CORES BEING CURRENTLY TESTED: %d \n", i)
-		start := time.Now()
-		Pinger(i, inputgomaxprocs)
-		duration := time.Since(start)
-		gmpToRuntime[i] = duration.Microseconds()
-		i++
+		//Plot gmpToRunTime -> Output Graph
+		plot(gmpToRuntime)
+
+		//Call Pinger for each website the user has called
+		fmt.Println("(2) Statistics for each of the input websites will now be completed.")
+		displayresults = true
+		Pinger(i, inputsplice)
+	} else {
+		fmt.Println("You have quit the program. If you wish to rereun, enter 'go run mastping.go' into the command line. Thank you!")
+		fmt.Printf("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -\n")
+		fmt.Printf("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -\n")
 	}
-	fmt.Printf("The output for the comparison between GOMAXPROCS and the program run time has completed. \n\n\n")
-	//Plot gmpToRunTime -> Output Graph
-	plot(gmpToRuntime)
-
-	//Call Pinger for each website the user has called
-	fmt.Println("(2) Statistics for each of the input websites will now be completed.")
-	displayresults = true
-	Pinger(i, inputsplice)
 }

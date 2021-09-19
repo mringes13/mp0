@@ -7,7 +7,7 @@ This project was assigned to practice the newly learned Go-Routines and Go-Chann
 Start the analytical ping with `go run mastping.go`
 ### Step 2: Interact with Command Line
 ### Step 3: Open the created HTML file
-If input from command line was valid, an HTML file will be created. Open the created HTML file to see the GOMAXPROCS vs. Program Run Time plot with `open bar.html`.
+If input from command line was valid, an HTML file will be created. Open the created HTML file to see the GOMAXPROCS vs. Program Run Time plot with `open gomaxprocsvsruntime.html`.
 
 
 #### User Ping Websites Process
