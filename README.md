@@ -6,6 +6,9 @@ This project was assigned to practice the newly learned Go-Routines and Go-Chann
 ### Step 1: Initialize ping of websites
 Start the analytical ping with `go run mastping.go`
 ### Step 2: Interact with Command Line
+### Step 3: If created, open the HTML file
+Open the created HTML file to see the GOMAXPROCS vs. Program Run Time plot with `open bar.html`.
+
 
 #### User Ping Websites Process
 - To quit the program when being asked to input websites, return 'q'.
