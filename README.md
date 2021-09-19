@@ -13,48 +13,16 @@ Start the analytical ping with `go run mastping.go`
 - Enter the desired websites to be pinged.
 
 ## Screenshots
+1. Command Line Interface
+<img width="954" alt="Screen Shot 2021-09-19 at 11 13 15 AM" src="https://user-images.githubusercontent.com/60116121/133932785-92ff1f81-7a14-4b6c-8635-5d6292c97616.png">
+
+2. Output GOMAXPROCS vs Runtime Plot
+<img width="1051" alt="Screen Shot 2021-09-19 at 11 13 41 AM" src="https://user-images.githubusercontent.com/60116121/133932810-8bb6d754-c2ee-410e-99d4-ea42a23a58fc.png">
 
 ## Workflows
 ### Ping Process
 ![MP0 Workflow Diagram](https://user-images.githubusercontent.com/60116121/133932682-9a37ebe8-20af-487f-95b2-b4035317fc1b.png)
 
-
-## Custom Data Structures
-1. Message Struct
-```go
-type Message struct {
-   To string
-   From string
-   Content string
-}
-```
-2. Username-Connection Lookup Map
-```go
-var clientLookup = make(map[string]net.Conn)
-```
-## Package Design
-### Application
-- `chatroomparsing.go` contains functions for parsing initial command line arguments and reading the command line to
-  terminate a chatroom process upon user request
-- `clientparsing.go` contains functions for parsing initial command line arguments and reading the command line to 
-  construct messages and terminate a client process upon user request
-### Network
-- `chatroom.go` contains functions for listening to a TCP port as well as routing messages from client to client
-- `client.go` contains functions for establishing a connection to a TCP port as well as sending and receiving messages 
-  to and from the chatroom
-- `communication.go` contains functions for writing and reading messages to a TCP channel via gob
-### Messages
-`messages.go` contains the Message struct
-### Error Checker
-`errorchecker.go` contains a function to check for errors for initial TCP connection functions.
-### Images
-Contains all the images used in this README.
-
-
-## Exit Codes:
-- `0`: Successful
-- `1`: Incorrect command line input format
-- `2`: External package function error
 
 ## References
 - My error checking function, `CheckError()`, is a modified version of sample code from [Network Programming with Go](https://ipfs.io/ipfs/QmfYeDhGH9bZzihBUDEQbCbTc5k5FZKURMUoUvfmc27BwL/socket/tcp_sockets.html).
