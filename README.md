@@ -25,4 +25,4 @@ Start the analytical ping with `go run mastping.go`
 
 
 ## References
-- The plotting function is a modified version of sample code from [Go E-Charts Examples] (https://github.com/go-echarts/examples/blob/master/examples/scatter.go).
+- The plotting function is a modified version of sample code from [Go E-Charts Examples](https://github.com/go-echarts/examples/blob/master/examples/scatter.go "Go E-Charts Examples").
