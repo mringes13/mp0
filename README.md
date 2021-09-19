@@ -25,5 +25,4 @@ Start the analytical ping with `go run mastping.go`
 
 
 ## References
-- My error checking function, `CheckError()`, is a modified version of sample code from [Network Programming with Go](https://ipfs.io/ipfs/QmfYeDhGH9bZzihBUDEQbCbTc5k5FZKURMUoUvfmc27BwL/socket/tcp_sockets.html).
-- My exact implementation of establishing a TCP connection on both client and server side was taken from [this linode tutorial](https://www.linode.com/docs/guides/developing-udp-and-tcp-clients-and-servers-in-go/).
+- The plotting function is a modified version of sample code from [Go E-Charts Examples] (https://github.com/go-echarts/examples/blob/master/examples/scatter.go).
