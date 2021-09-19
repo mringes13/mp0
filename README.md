@@ -29,6 +29,12 @@ If input from command line was valid, an HTML file will be created. Open the cre
 ## Workflow
 ![MP0 Workflow Diagram](https://user-images.githubusercontent.com/60116121/133932682-9a37ebe8-20af-487f-95b2-b4035317fc1b.png)
 
+## Custom Data Structures
+
+
+## Package Design
+
 
 ## References
 - The plotting function is a modified version of sample code from [Go E-Charts Examples](https://github.com/go-echarts/examples/blob/master/examples/scatter.go "Go E-Charts Examples").
+- Our exact implementation of the `MaxParallelism()` function, which identifies and sets GOMAXPROCS to the maximum possible number of CPU Threads, was taken from this [github repository](https://gist.github.com/peterhellberg/5848304).
