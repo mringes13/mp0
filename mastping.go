@@ -174,7 +174,7 @@ func main() {
 		// Return the runtime of each iteration.
 		fmt.Printf("(1) We will now compare the runtime of the program against all possible values of GOMAXPROCS. \n")
 		for i < gmp+1 {
-			fmt.Printf("CPU threads currently beig tested: %d \n", i)
+			fmt.Printf("CPU threads currently being tested: %d \n", i)
 			start := time.Now()
 			Pinger(i, inputgomaxprocs)
 			duration := time.Since(start)
