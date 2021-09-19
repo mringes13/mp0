@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"bytes"
 	"fmt"
 	"os"
@@ -228,13 +229,13 @@ func main() {
 	//Saving desired websites from a user to variables
 	fmt.Printf("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -\n")
 	fmt.Printf("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -\n")
-	//fmt.Printf("Please enter the websites you would like to ping; each separated with a space. Otherwise, enter 'q' to quit! ")
+	fmt.Printf("Please enter the websites you would like to ping; each separated with a space. Otherwise, enter 'q' to quit! ")
 	fmt.Println("Websites entered, pinging.")
-	//in := bufio.NewReader(os.Stdin)
-	//input, _ = in.ReadString('\n')
-	//input = strings.TrimSuffix(input, "\n")
-	input = os.Args[1]
-	if input == "" {
+	in := bufio.NewReader(os.Stdin)
+	input, _ = in.ReadString('\n')
+	input = strings.TrimSuffix(input, "\n")
+	//input = os.Args[1]
+	if input == "" || input == "q" {
 		os.Exit(0)
 	}
 	inputsplice = strings.Split(input, " ")
