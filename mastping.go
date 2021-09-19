@@ -1,21 +1,31 @@
 package main
 
 import (
-	"bufio"
+	"bytes"
+	"database/sql"
 	"fmt"
 	"os"
 	"os/exec"
 	"runtime"
 	"strconv"
 	"strings"
-	"text/tabwriter"
 	"time"
 
 	"github.com/go-echarts/go-echarts/v2/charts"
 	"github.com/go-echarts/go-echarts/v2/opts"
+	_ "github.com/mattn/go-sqlite3"
 )
 
-var displayresults bool = false
+const RoutineCount = 10
+
+var pingRes [RoutineCount]PingReturn
+var db *sql.DB
+
+type PingReturn struct {
+	website string
+	success bool
+	latency float64
+}
 
 // MaxParallelism returns the max GOMAXPROCS value, by comparing runtime.GOMAXPROCS
 // with number of CPUs, and returning larger value
@@ -28,83 +38,122 @@ func MaxParallelism() int {
 	return numCPU
 }
 
-// Ping will executes the ping of the websites.
+// Ping will execute the ping of the websites.
 //Input: website, channel
 //Output: Ping results are sent to channel
-func ping(website string, resultschannel chan []string) {
-	//Check to make sure website is valid
-	if website == "" {
-		return
+func ping(website string, resultschannel chan PingReturn) {
+	pingCmd := exec.Command("ping", "-n", "1", "-a", website)
+	pingOut := runCommand(pingCmd)
+	var grepCmd *exec.Cmd
+	if runtime.GOOS == "windows" {
+		grepCmd = exec.Command("findstr", "time=")
+	} else {
+		grepCmd = exec.Command("grep", "times=")
 	}
-
-	//Communicate with user
-	if displayresults == true {
-		fmt.Printf("Thank you! ~~%s~~ is now being sent packets! Please wait for results.\n", website)
+	grepCmd.Stdin = strings.NewReader(pingOut)
+	grepOut := runCommand(grepCmd)
+	if grepOut == "" {
+		resultschannel <- PingReturn{website, false, -1}
+	} else {
+		latencyString := grepOut[strings.Index(grepOut, "time=")+5 : strings.Index(grepOut, "ms")]
+		latencyFloat, err := strconv.ParseFloat(latencyString, 64)
+		checkError(err)
+		resultschannel <- PingReturn{website, true, latencyFloat}
 	}
-
-	//Assign the arguments
-	arg1 := "ping"
-	arg2 := website
-	arg3 := "-c 5"
-	arg4 := "-q"
-
-	//Ping the websites using the command line
-	cmd := exec.Command(arg1, arg2, arg3, arg4)
-	stdout, err := cmd.Output()
-
-	//Check for request timeout
-	if strings.Contains(string(stdout), "100.0%") {
-		resultschannel <- []string{website + " received no packets.", "--", "--", "--", "--"}
-		return
-	}
-	//Check for errors
-	if err != nil {
-		fmt.Println(err)
-		if err.Error() == "exit status 68" {
-			resultschannel <- []string{website + " is not available.", "--", "--", "--", "--"}
-		}
-		return
-	}
-
-	stdoutnew := string(stdout)
-	valuesum := strings.Split(stdoutnew, "= ")[1]
-	splitvalues := strings.Split(valuesum, "/")
-	newstddev := strings.Split(splitvalues[3], " ms")[0]
-	min, avg, max, stddev := splitvalues[0], splitvalues[1], splitvalues[2], newstddev
-	webinfo := []string{website, min, avg, max, stddev}
-	resultschannel <- webinfo
+	////Check to make sure website is valid
+	//if website == "" {
+	//	return
+	//}
+	//
+	////Communicate with user
+	//fmt.Printf("Thank you! ~~%s~~ is now being sent packets! Please wait for results.\n", website)
+	//
+	////Assign the arguments
+	//arg1 := "ping"
+	//arg2 := website
+	//arg3 := "-c 5"
+	//arg4 := "-q"
+	//
+	////Ping the websites using the command line
+	//cmd := exec.Command(arg1, arg2, arg3, arg4)
+	//stdout, err := cmd.Output()
+	//
+	////Check for request timeout
+	//if strings.Contains(string(stdout), "100.0%") {
+	//	resultschannel <- []string{website + " received no packets.", "--", "--", "--", "--"}
+	//	return
+	//}
+	////Check for errors
+	//if err != nil {
+	//	fmt.Println(err)
+	//	if err.Error() == "exit status 68" {
+	//		resultschannel <- []string{website + " is not available.", "--", "--", "--", "--"}
+	//	}
+	//	return
+	//}
+	//
+	//stdoutnew := string(stdout)
+	//valuesum := strings.Split(stdoutnew, "= ")[1]
+	//splitvalues := strings.Split(valuesum, "/")
+	//newstddev := strings.Split(splitvalues[3], " ms")[0]
+	//min, avg, max, stddev := splitvalues[0], splitvalues[1], splitvalues[2], newstddev
+	//webinfo := []string{website, min, avg, max, stddev}
+	//resultschannel <- webinfo
 
 }
 
 // Pinger executes the ping command sends stats to current channel
 func Pinger(gmp int, websites []string) {
 	runtime.GOMAXPROCS(gmp)
-	resultschannel := make(chan []string)
-	webinfocollection := [][]string{}
+	resultschannel := make(chan PingReturn)
+	//var webinfocollection [][]string
 
 	//For each valid website entered, ping the website, send/receive the data to/from the channel, save the data for later output
-	for i := range websites {
-		if websites[i] != "" {
-			go ping(websites[i], resultschannel)
-			webinfo := <-resultschannel
-			webinfocollection = append(webinfocollection, webinfo)
+	for i := 0; i < RoutineCount; i++ {
+		if websites[i%len(websites)] != "" {
+			go ping(websites[i%len(websites)], resultschannel)
+			//webinfo := <-resultschannel
+			//webinfocollection = append(webinfocollection, webinfo)
 		}
 	}
+	for i := 0; i < RoutineCount; {
+		select {
+		case x, ok := <-resultschannel:
+			if ok {
+				pingRes[i] = x
+				i++
+			} else {
+				fmt.Printf("No value here %d\n", i)
+				break
+			}
+		default:
+			continue
+		}
+		if i+1 >= RoutineCount {
+			break
+		}
+	}
+	//for ping := range resultschannel {
+	//	fmt.Println(ping)
+	//}
 
 	//Create a table with the output data
-	if displayresults == true {
-		w := new(tabwriter.Writer)
-		w.Init(os.Stdout, 8, 8, 3, '\t', 0)
-		fmt.Fprintln(w, "\t")
-		fmt.Fprintln(w, "WEBSITE\t MIN\t AVG\t MAX\t STDDEV\t")
-		fmt.Fprintln(w, "-------\t -------\t -------\t -------\t -------\t")
-		for i := range webinfocollection {
-			fmt.Fprintln(w, webinfocollection[i][0], "\t", webinfocollection[i][1], "\t", webinfocollection[i][2], "\t", webinfocollection[i][3], "\t", webinfocollection[i][4], "\t")
-		}
-		fmt.Fprintln(w, "\t")
-		w.Flush()
-	}
-
+	//w := new(tabwriter.Writer)
+	//w.Init(os.Stdout, 8, 8, 3, '\t', 0)
+	//_, err := fmt.Fprintln(w, "\t")
+	//checkError(err)
+	//_, err = fmt.Fprintln(w, "WEBSITE\t MIN\t AVG\t MAX\t STDDEV\t")
+	//checkError(err)
+	//_, err = fmt.Fprintln(w, "-------\t -------\t -------\t -------\t -------\t")
+	//checkError(err)
+	//for i := range webinfocollection {
+	//	_, err = fmt.Fprintln(w, webinfocollection[i][0], "\t", webinfocollection[i][1], "\t", webinfocollection[i][2], "\t", webinfocollection[i][3], "\t", webinfocollection[i][4], "\t")
+	//	checkError(err)
+	//}
+	//_, err = fmt.Fprintln(w, "\t")
+	//checkError(err)
+	//err = w.Flush()
+	//checkError(err)
 }
 
 // Plot is a function to plot the statistics of GOMAXPROCS vs program run time
@@ -145,13 +194,40 @@ func plot(gmpToRuntime map[int]int64) {
 	)
 	// Where the magic happens
 	f, _ := os.Create("bar.html")
-	scatter.Render(f)
+	err := scatter.Render(f)
+	checkError(err)
 
+}
+
+func runCommand(cmd *exec.Cmd) string {
+	var out bytes.Buffer
+	cmd.Stdout = &out
+	err := cmd.Run()
+	if err != nil {
+		return ""
+	}
+	return out.String()
+}
+
+func insertResult(res PingReturn) {
+	stmt, err := db.Prepare("INSERT INTO ping_results (time, website, ping) values (DATETIME('now', 'localtime'),?,?)")
+	checkError(err)
+	_, err = stmt.Exec(res.website, res.latency)
+	checkError(err)
+}
+
+func checkError(err error) {
+	if err != nil {
+		panic(err)
+	}
 }
 
 // Sets the GOMAXPROCS value, and parallelizes ping command while increasing GOMAXPROCS value by one
 // in each thread.
 func main() {
+	var e error
+	db, e = sql.Open("sqlite3", "./ping_results.db")
+	checkError(e)
 	var gmpToRuntime = make(map[int]int64) // Create an int slice to map GOMAXPROCS values to runtime in nanoseconds.
 
 	gmp := MaxParallelism() // Set the max GOMAXPROCS value
@@ -163,12 +239,16 @@ func main() {
 	//Saving desired websites from a user to variables
 	fmt.Printf("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -\n")
 	fmt.Printf("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -\n")
-	fmt.Printf("Please enter the websites you would like to ping; each separated with a space. Otherwise, enter 'q' to quit! ")
-	in := bufio.NewReader(os.Stdin)
-	input, _ = in.ReadString('\n')
-	input = strings.TrimSuffix(input, "\n")
+	//fmt.Printf("Please enter the websites you would like to ping; each separated with a space. Otherwise, enter 'q' to quit! ")
+	fmt.Println("Websites entered, pinging.")
+	//in := bufio.NewReader(os.Stdin)
+	//input, _ = in.ReadString('\n')
+	//input = strings.TrimSuffix(input, "\n")
+	input = os.Args[1]
+	if input == "" {
+		os.Exit(0)
+	}
 	inputsplice = strings.Split(input, " ")
-	var inputgomaxprocs []string = inputsplice
 
 	// Iterate through every possible value of GOMAXPROCS and run Pinger program for just the first entered website.
 	// Return the runtime of each iteration.
@@ -177,17 +257,19 @@ func main() {
 	for i < gmp+1 {
 		fmt.Printf("CPU CORES BEING CURRENTLY TESTED: %d \n", i)
 		start := time.Now()
-		Pinger(i, inputgomaxprocs)
+		Pinger(i, inputsplice)
 		duration := time.Since(start)
 		gmpToRuntime[i] = duration.Microseconds()
 		i++
+		for j := 0; j < RoutineCount; j++ {
+			insertResult(pingRes[j])
+		}
 	}
 	fmt.Printf("The output for the comparison between GOMAXPROCS and the program run time has completed. \n\n\n")
 	//Plot gmpToRunTime -> Output Graph
 	plot(gmpToRuntime)
 
 	//Call Pinger for each website the user has called
-	fmt.Println("(2) Statistics for each of the input websites will now be completed.")
-	displayresults = true
-	Pinger(i, inputsplice)
+	//fmt.Println("(2) Statistics for each of the input websites will now be completed.")
+	//Pinger(i, inputsplice)
 }
