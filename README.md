@@ -26,8 +26,7 @@ If input from command line was valid, an HTML file will be created. Open the cre
 <img width="1073" alt="Screen Shot 2021-09-19 at 12 23 46 PM" src="https://user-images.githubusercontent.com/60116121/133935120-2ae8518f-7659-4b5e-8099-60f4877932c3.png">
 
 
-## Workflows
-### Ping Process
+## Workflow
 ![MP0 Workflow Diagram](https://user-images.githubusercontent.com/60116121/133932682-9a37ebe8-20af-487f-95b2-b4035317fc1b.png)
 
 
