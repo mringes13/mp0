@@ -16,10 +16,12 @@ If input from command line was valid, an HTML file will be created. Open the cre
 - Enter the desired websites to be pinged.
 
 ## Screenshots
-1. Command Line Interface
+1. Command Line Interface - Valid User Input
 <img width="954" alt="Screen Shot 2021-09-19 at 11 13 15 AM" src="https://user-images.githubusercontent.com/60116121/133932785-92ff1f81-7a14-4b6c-8635-5d6292c97616.png">
 
-2. Output GOMAXPROCS vs Runtime Plot
+2. Command Line Interface - User Quit Program
+
+3. Output GOMAXPROCS vs Runtime Plot
 <img width="1051" alt="Screen Shot 2021-09-19 at 11 13 41 AM" src="https://user-images.githubusercontent.com/60116121/133932810-8bb6d754-c2ee-410e-99d4-ea42a23a58fc.png">
 
 ## Workflows
