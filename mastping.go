@@ -2,24 +2,23 @@ package main
 
 import (
 	"bytes"
-	"database/sql"
 	"fmt"
 	"os"
 	"os/exec"
 	"runtime"
 	"strconv"
 	"strings"
+	"text/tabwriter"
 	"time"
 
 	"github.com/go-echarts/go-echarts/v2/charts"
 	"github.com/go-echarts/go-echarts/v2/opts"
-	_ "github.com/mattn/go-sqlite3"
+	"github.com/montanaflynn/stats"
 )
 
-const RoutineCount = 10
+const RoutineCount = 500
 
-var pingRes [RoutineCount]PingReturn
-var db *sql.DB
+var pingRes []PingReturn
 
 type PingReturn struct {
 	website string
@@ -120,7 +119,7 @@ func Pinger(gmp int, websites []string) {
 		select {
 		case x, ok := <-resultschannel:
 			if ok {
-				pingRes[i] = x
+				pingRes = append(pingRes, x)
 				i++
 			} else {
 				fmt.Printf("No value here %d\n", i)
@@ -176,7 +175,7 @@ func plot(gmpToRuntime map[int]int64) {
 			},
 		),
 		charts.WithXAxisOpts(opts.XAxis{
-			Name: "GPU CORES",
+			Name: "CPU THREADS",
 		}),
 		charts.WithYAxisOpts(opts.YAxis{
 			Name: "Time(μs)",
@@ -209,13 +208,6 @@ func runCommand(cmd *exec.Cmd) string {
 	return out.String()
 }
 
-func insertResult(res PingReturn) {
-	stmt, err := db.Prepare("INSERT INTO ping_results (time, website, ping) values (DATETIME('now', 'localtime'),?,?)")
-	checkError(err)
-	_, err = stmt.Exec(res.website, res.latency)
-	checkError(err)
-}
-
 func checkError(err error) {
 	if err != nil {
 		panic(err)
@@ -225,9 +217,6 @@ func checkError(err error) {
 // Sets the GOMAXPROCS value, and parallelizes ping command while increasing GOMAXPROCS value by one
 // in each thread.
 func main() {
-	var e error
-	db, e = sql.Open("sqlite3", "./ping_results.db")
-	checkError(e)
 	var gmpToRuntime = make(map[int]int64) // Create an int slice to map GOMAXPROCS values to runtime in nanoseconds.
 
 	gmp := MaxParallelism() // Set the max GOMAXPROCS value
@@ -261,13 +250,53 @@ func main() {
 		duration := time.Since(start)
 		gmpToRuntime[i] = duration.Microseconds()
 		i++
-		for j := 0; j < RoutineCount; j++ {
-			insertResult(pingRes[j])
-		}
 	}
 	fmt.Printf("The output for the comparison between GOMAXPROCS and the program run time has completed. \n\n\n")
 	//Plot gmpToRunTime -> Output Graph
 	plot(gmpToRuntime)
+
+	w := new(tabwriter.Writer)
+	w.Init(os.Stdout, 8, 8, 3, '\t', 0)
+	_, err := fmt.Fprintln(w, "\t")
+	checkError(err)
+	_, err = fmt.Fprintln(w, "WEBSITE\t MIN\t AVG\t MAX\t STDDEV\t TOTAL\t PERCENT\t")
+	checkError(err)
+	_, err = fmt.Fprintln(w, "-------\t -------\t -------\t -------\t -------\t -------\t -------\t")
+	checkError(err)
+	for i := range inputsplice {
+		succCount := 0
+		totCount := 0
+		var pingSlice []float64
+		for j := range pingRes {
+			if pingRes[j].website == inputsplice[i] {
+				totCount += 1
+				if pingRes[j].success {
+					succCount += 1
+					pingSlice = append(pingSlice, pingRes[j].latency)
+				}
+			}
+		}
+		if len(pingSlice) > 0 {
+			minimum, _ := stats.Min(pingSlice)
+			maximum, _ := stats.Max(pingSlice)
+			means, _ := stats.Mean(pingSlice)
+			stddev, _ := stats.StandardDeviation(pingSlice)
+			_, err = fmt.Fprintln(w, inputsplice[i], "\t",
+				strconv.FormatFloat(minimum, 'f', 2, 64), "\t",
+				strconv.FormatFloat(means, 'f', 2, 64), "\t",
+				strconv.FormatFloat(maximum, 'f', 2, 64), "\t",
+				strconv.FormatFloat(stddev, 'f', 2, 64), "\t",
+				totCount, "\t",
+				strconv.FormatFloat(float64(succCount)/float64(totCount)*100.0, 'f', 2, 64)+"%", "\t")
+			checkError(err)
+		} else {
+			_, err = fmt.Fprintln(w, inputsplice[i], "\t", "NaN", "\t", "NaN", "\t", "NaN", "\t", "NaN", "\t", "0.00%", "\t")
+		}
+	}
+	_, err = fmt.Fprintln(w, "\t")
+	checkError(err)
+	err = w.Flush()
+	checkError(err)
 
 	//Call Pinger for each website the user has called
 	//fmt.Println("(2) Statistics for each of the input websites will now be completed.")
