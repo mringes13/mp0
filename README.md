@@ -20,7 +20,7 @@ If input from command line was valid, an HTML file will be created. Open the cre
 <img width="967" alt="Screen Shot 2021-09-19 at 12 23 08 PM" src="https://user-images.githubusercontent.com/60116121/133935098-32439c47-6344-44c0-929f-3d67fc6c6ab0.png">
 
 2. Command Line Interface - User Quit Program
-<img width="959" alt="Screen Shot 2021-09-19 at 12 22 28 PM" src="https://user-images.githubusercontent.com/60116121/133935079-2d99aee2-7774-4d25-9838-e4405ea30f60.png">
+<img width="958" alt="Screen Shot 2021-09-19 at 12 24 18 PM" src="https://user-images.githubusercontent.com/60116121/133935141-89a10fcf-fd0d-41a5-882c-a6337fd2431e.png">
 
 3. Output GOMAXPROCS vs Runtime Plot
 <img width="1073" alt="Screen Shot 2021-09-19 at 12 23 46 PM" src="https://user-images.githubusercontent.com/60116121/133935120-2ae8518f-7659-4b5e-8099-60f4877932c3.png">
