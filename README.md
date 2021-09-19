@@ -6,6 +6,9 @@ This project was assigned to practice the newly learned Go-Routines and Go-Chann
 ### Step 1: Initialize ping of websites
 Start the analytical ping with `go run mastping.go`
 ### Step 2: Interact with Command Line
+### Step 3: Open the created HTML file
+If input from command line was valid, an HTML file will be created. Open the created HTML file to see the GOMAXPROCS vs. Program Run Time plot with `open gomaxprocsvsruntime.html`.
+
 
 #### User Ping Websites Process
 - To quit the program when being asked to input websites, return 'q'.
@@ -13,49 +16,19 @@ Start the analytical ping with `go run mastping.go`
 - Enter the desired websites to be pinged.
 
 ## Screenshots
+1. Command Line Interface - Valid User Input
+<img width="967" alt="Screen Shot 2021-09-19 at 12 23 08 PM" src="https://user-images.githubusercontent.com/60116121/133935098-32439c47-6344-44c0-929f-3d67fc6c6ab0.png">
 
-## Workflows
-### Ping Process
+2. Command Line Interface - User Quit Program
+<img width="958" alt="Screen Shot 2021-09-19 at 12 24 18 PM" src="https://user-images.githubusercontent.com/60116121/133935141-89a10fcf-fd0d-41a5-882c-a6337fd2431e.png">
+
+3. Output GOMAXPROCS vs Runtime Plot
+<img width="1073" alt="Screen Shot 2021-09-19 at 12 23 46 PM" src="https://user-images.githubusercontent.com/60116121/133935120-2ae8518f-7659-4b5e-8099-60f4877932c3.png">
+
+
+## Workflow
 ![MP0 Workflow Diagram](https://user-images.githubusercontent.com/60116121/133932682-9a37ebe8-20af-487f-95b2-b4035317fc1b.png)
 
 
-## Custom Data Structures
-1. Message Struct
-```go
-type Message struct {
-   To string
-   From string
-   Content string
-}
-```
-2. Username-Connection Lookup Map
-```go
-var clientLookup = make(map[string]net.Conn)
-```
-## Package Design
-### Application
-- `chatroomparsing.go` contains functions for parsing initial command line arguments and reading the command line to
-  terminate a chatroom process upon user request
-- `clientparsing.go` contains functions for parsing initial command line arguments and reading the command line to 
-  construct messages and terminate a client process upon user request
-### Network
-- `chatroom.go` contains functions for listening to a TCP port as well as routing messages from client to client
-- `client.go` contains functions for establishing a connection to a TCP port as well as sending and receiving messages 
-  to and from the chatroom
-- `communication.go` contains functions for writing and reading messages to a TCP channel via gob
-### Messages
-`messages.go` contains the Message struct
-### Error Checker
-`errorchecker.go` contains a function to check for errors for initial TCP connection functions.
-### Images
-Contains all the images used in this README.
-
-
-## Exit Codes:
-- `0`: Successful
-- `1`: Incorrect command line input format
-- `2`: External package function error
-
 ## References
-- My error checking function, `CheckError()`, is a modified version of sample code from [Network Programming with Go](https://ipfs.io/ipfs/QmfYeDhGH9bZzihBUDEQbCbTc5k5FZKURMUoUvfmc27BwL/socket/tcp_sockets.html).
-- My exact implementation of establishing a TCP connection on both client and server side was taken from [this linode tutorial](https://www.linode.com/docs/guides/developing-udp-and-tcp-clients-and-servers-in-go/).
+- The plotting function is a modified version of sample code from [Go E-Charts Examples](https://github.com/go-echarts/examples/blob/master/examples/scatter.go "Go E-Charts Examples").
