@@ -17,12 +17,14 @@ If input from command line was valid, an HTML file will be created. Open the cre
 
 ## Screenshots
 1. Command Line Interface - Valid User Input
-<img width="954" alt="Screen Shot 2021-09-19 at 11 13 15 AM" src="https://user-images.githubusercontent.com/60116121/133932785-92ff1f81-7a14-4b6c-8635-5d6292c97616.png">
+<img width="967" alt="Screen Shot 2021-09-19 at 12 23 08 PM" src="https://user-images.githubusercontent.com/60116121/133935098-32439c47-6344-44c0-929f-3d67fc6c6ab0.png">
 
 2. Command Line Interface - User Quit Program
+<img width="959" alt="Screen Shot 2021-09-19 at 12 22 28 PM" src="https://user-images.githubusercontent.com/60116121/133935079-2d99aee2-7774-4d25-9838-e4405ea30f60.png">
 
 3. Output GOMAXPROCS vs Runtime Plot
-<img width="1051" alt="Screen Shot 2021-09-19 at 11 13 41 AM" src="https://user-images.githubusercontent.com/60116121/133932810-8bb6d754-c2ee-410e-99d4-ea42a23a58fc.png">
+<img width="1073" alt="Screen Shot 2021-09-19 at 12 23 46 PM" src="https://user-images.githubusercontent.com/60116121/133935120-2ae8518f-7659-4b5e-8099-60f4877932c3.png">
+
 
 ## Workflows
 ### Ping Process
