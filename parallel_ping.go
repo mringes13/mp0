@@ -2,18 +2,28 @@ package main
 
 import (
 	"bytes"
+	"database/sql"
 	"fmt"
-	"github.com/go-ping/ping"
+	_ "github.com/mattn/go-sqlite3"
 	"log"
 	"os"
 	"os/exec"
 	"runtime"
 	"strconv"
 	"strings"
+	"time"
 )
 
+const PacketCount int = 500
+
+var db *sql.DB
+
 func main() {
-	fmt.Printf("trying go-ping: %d\n", goPing("www.google.com"))
+	var e error
+	db, e = sql.Open("sqlite3", "./ping_results.db")
+	if e != nil {
+		panic(e)
+	}
 	file, _ := os.Create("test.txt")
 	defer func(file *os.File) {
 		err := file.Close()
@@ -22,23 +32,41 @@ func main() {
 			log.Fatal(err)
 		}
 	}(file)
-	c := make(chan int, 100)
-	for i := 0; i < 100; i++ {
+	c := make(chan int)
+	//concurrent shell ping
+	start := time.Now()
+	for i := 0; i < PacketCount; i++ {
 		go shellPing("google.com", c)
 	}
-	for i := 0; i < 100; i++ {
-		_, err := file.WriteString(fmt.Sprintf("%d\n", <-c))
-		if err != nil {
-			fmt.Println("Problem with writing")
-			log.Fatal(err)
+	for i := 0; i < PacketCount; {
+		select {
+		case x, ok := <-c:
+			if ok {
+				fmt.Printf("%d\n", x)
+				stmt, err := db.Prepare("INSERT INTO ping_results (time, website, ping) values (DATETIME('now', 'localtime'),?,?)")
+				if err != nil {
+					log.Fatal(err)
+				}
+				_, err = stmt.Exec("google.com", x)
+				if err != nil {
+					log.Fatal(err)
+				}
+				i++
+			} else {
+				fmt.Printf("No value here %d\n", i)
+				break
+			}
+		default:
+			continue
 		}
 	}
+	elapsed := time.Since(start)
+	fmt.Printf("Concurrent shell ping: %s\n", elapsed)
 }
 
 func shellPing(url string, c chan int) {
 	pinger := exec.Command("ping", "-n", "1", "-a", url)
 	pingOut := runCommand(pinger)
-	//grep := exec.Command("findstr", "time=")
 	var grep *exec.Cmd
 	if runtime.GOOS == "windows" {
 		grep = exec.Command("findstr", "time=")
@@ -47,13 +75,15 @@ func shellPing(url string, c chan int) {
 	}
 	grep.Stdin = strings.NewReader(pingOut)
 	grepOut := runCommand(grep)
-	latency := strings.TrimSpace(strings.Split(grepOut, "=")[1])
-	actualPing, err := strconv.Atoi(latency[:len(latency)-2])
+	latency := grepOut[strings.Index(grepOut, "time=")+5 : strings.Index(grepOut, "ms")]
+	actualPing, err := strconv.Atoi(latency)
 	if err != nil {
-		fmt.Println("Problem with converting")
-		log.Fatal(err)
+		c <- -1
+		//fmt.Println("Problem with converting")
+		//log.Fatal(err)
+	} else {
+		c <- actualPing
 	}
-	c <- actualPing
 }
 
 func runCommand(cmd *exec.Cmd) string {
@@ -64,21 +94,4 @@ func runCommand(cmd *exec.Cmd) string {
 		log.Fatal(err)
 	}
 	return out.String()
-}
-
-func goPing(url string) int {
-	pinger, err := ping.NewPinger(url)
-	pinger.SetPrivileged(true)
-	if err != nil {
-		fmt.Println("hello1")
-		panic(err)
-	}
-	pinger.Count = 1
-	err = pinger.Run() // Blocks until finished.
-	if err != nil {
-		fmt.Println("hello2")
-		panic(err)
-	}
-	stats := pinger.Statistics() // get send/receive/duplicate/rtt stats
-	return int(stats.Rtts[0].Milliseconds())
 }
