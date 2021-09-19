@@ -130,7 +130,7 @@ func plot(gmpToRuntime map[int]int64) {
 			Name: "GPU CORES",
 		}),
 		charts.WithYAxisOpts(opts.YAxis{
-			Name: "Time(ms)",
+			Name: "Time(μs)",
 		}),
 	)
 
