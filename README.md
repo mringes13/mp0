@@ -21,23 +21,10 @@ Start the analysis with 'go run mastping.go'
 
 ## Package Design
 ### Application
-- `chatroomparsing.go` contains functions for parsing initial command line arguments and reading the command line to
-  terminate a chatroom process upon user request
-- `clientparsing.go` contains functions for parsing initial command line arguments and reading the command line to 
-  construct messages and terminate a client process upon user request
 ### Network
-- `chatroom.go` contains functions for listening to a TCP port as well as routing messages from client to client
-- `client.go` contains functions for establishing a connection to a TCP port as well as sending and receiving messages 
-  to and from the chatroom
-- `communication.go` contains functions for writing and reading messages to a TCP channel via gob
 ### Messages
-`messages.go` contains the Message struct
 ### Error Checker
-`errorchecker.go` contains a function to check for errors for initial TCP connection functions.
-### Images
 
-
-## Exit Codes:
 
 ## References
 
