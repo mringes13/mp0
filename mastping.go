@@ -212,7 +212,7 @@ func main() {
 		gmpToRuntime[i] = duration.Microseconds()
 		i++
 	}
-	fmt.Printf("The output for the comparison between GOMAXPROCS and the program run time has completed. \n\n\n")
+	fmt.Printf("The output for the relation between GOMAXPROCS and the program run time has completed. \n\n\n")
 	//Plot gmpToRunTime -> Output Graph
 	plot(gmpToRuntime)
 
