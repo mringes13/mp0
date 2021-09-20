@@ -4,7 +4,7 @@ This project was assigned to practice the newly learned Go-Routines and Go-Chann
 
 ## How to Run
 ### Step 1: Initialize ping of websites
-Start the analytical ping with `go run shellping.go`
+Start the analytical ping with `go run mastping.go`
 ### Step 2: Interact with Command Line
 Enter the website domains you wish you ping. You can input as many inputs as you want, but they must be separated by a white space. 
 Press ENTER to generate analysis of parallel pings. 
