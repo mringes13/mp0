@@ -41,8 +41,6 @@ If input from command line was valid, an HTML file will be created. Open the cre
 
 2. GOMAXPROCS-to-Runtime Map
 `var gmpToRuntime = make(map[int]int64)`
-## Package Design
-
 
 ## References
 - The plotting function is a modified version of sample code from [Go E-Charts Examples](https://github.com/go-echarts/examples/blob/master/examples/scatter.go "Go E-Charts Examples").
