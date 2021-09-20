@@ -186,7 +186,7 @@ func main() {
 	// Iterate through every possible value of GOMAXPROCS and run Pinger program for just the first entered website.
 	// Return the runtime of each iteration.
 	fmt.Printf("(1) We will now compare the runtime of the program against all possible values of GOMAXPROCS. \n")
-	i := 0
+	i := 1
 	for i < gmp+1 {
 		fmt.Printf("CPU CORES BEING CURRENTLY TESTED: %d \n", i)
 		start := time.Now()
