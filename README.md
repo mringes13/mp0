@@ -7,6 +7,7 @@ This project was assigned to practice the newly learned Go-Routines and Go-Chann
 Start the analytical ping with `go run mastping.go`
 ### Step 2: Interact with Command Line
 Enter the website domains you wish you ping. You can input as many inputs as you want, but they must be separated by a white space. 
+Press ENTER to generate analysis of parallel pings. 
 ### Step 3: Open the created HTML file
 If input from command line was valid, an HTML file will be created. Open the created HTML file to see the GOMAXPROCS vs. Program Run Time plot with `open gomaxprocsvsruntime.html`.
 
