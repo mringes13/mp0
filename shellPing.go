@@ -108,7 +108,7 @@ func initiatePingRoutines(gmp int, websites []string) {
 func plot(gmpToRuntime map[int]int64) {
 	var keys []string
 	var values []opts.ScatterData
-	for keyValue := 0; keyValue < len(gmpToRuntime); keyValue++ {
+	for keyValue := 1; keyValue <= len(gmpToRuntime); keyValue++ {
 		keyString := strconv.Itoa(keyValue)
 		keys = append(keys, keyString)
 		values = append(values, opts.ScatterData{Value: gmpToRuntime[keyValue]})
@@ -123,7 +123,7 @@ func plot(gmpToRuntime map[int]int64) {
 			},
 		),
 		charts.WithXAxisOpts(opts.XAxis{
-			Name: "Number of CPU THREADS",
+			Name: "#CPU Threads",
 		}),
 		charts.WithYAxisOpts(opts.YAxis{
 			Name: "Time(μs)",
