@@ -32,8 +32,15 @@ If input from command line was valid, an HTML file will be created. Open the cre
 ![MP0 Workflow Diagram](https://user-images.githubusercontent.com/60116121/133932682-9a37ebe8-20af-487f-95b2-b4035317fc1b.png)
 
 ## Custom Data Structures
+1. PingReturn Struct 
+`type PingReturn struct {
+	website string
+	success bool
+	latency float64
+}`
 
-
+2. GOMAXPROCS-to-Runtime Map
+`var gmpToRuntime = make(map[int]int64)`
 ## Package Design
 
 
