@@ -16,7 +16,7 @@ If input from command line was valid, an HTML file will be created. Open the cre
 - To quit the program when being asked to input websites, return 'q'.
 - To quit the program while running, interact with the system command line (i.e. OS Terminal - Control + C)
 - Enter the desired websites to be pinged.
-- To specify the number of GoRoutines, start the program with 'go run github.com/mast/shell-ping 10'
+- To specify the number of GoRoutines, start the program with 'go run github.com/mast/shellPing 10'
 
 ## Screenshots
 1. Command Line Interface - Valid User Input
