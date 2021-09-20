@@ -112,7 +112,7 @@ func plot(gmpToRuntime map[int]int64) {
 			},
 		),
 		charts.WithXAxisOpts(opts.XAxis{
-			Name: "CPU THREADS",
+			Name: "Number of CPU THREADS",
 		}),
 		charts.WithYAxisOpts(opts.YAxis{
 			Name: "Time(μs)",
