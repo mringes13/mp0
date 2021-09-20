@@ -20,27 +20,30 @@ import (
 var RoutineCount int
 var pingRes []PingReturn
 
+// PingReturn is the return instance of a ping command
 type PingReturn struct {
-	website string
-	success bool
-	latency float64
+	website string  //The site at which ping command is executed
+	success bool    //Whether the packet returned successfully
+	latency float64 //The network latency of the website, if ! success, latency=-1
 }
 
 // MaxParallelism returns the max GOMAXPROCS value, by comparing runtime.GOMAXPROCS
 // with number of CPUs, and returning larger value
 func MaxParallelism() int {
-	maxProcs := runtime.GOMAXPROCS(0)
+	maxProcess := runtime.GOMAXPROCS(0)
 	numCPU := runtime.NumCPU()
-	if maxProcs < numCPU {
-		return maxProcs
+	if maxProcess < numCPU {
+		return maxProcess
 	}
 	return numCPU
 }
 
-// Ping will execute the ping of the websites.
-//Input: website, channel
-//Output: Ping results are sent to channel
-func ping(website string, resultschannel chan PingReturn) {
+/*
+	@input website //A single instance of website to be pinged
+		   resultsChannel // An unbuffered channel that stores a PingReturn instance
+	ping function pings the given website once and sends the returned value into resultsChanel
+*/
+func ping(website string, resultsChannel chan PingReturn) {
 	pingCmd := exec.Command("ping", "-n", "1", "-a", website)
 	pingOut := runCommand(pingCmd)
 	var grepCmd *exec.Cmd
@@ -52,30 +55,34 @@ func ping(website string, resultschannel chan PingReturn) {
 	grepCmd.Stdin = strings.NewReader(pingOut)
 	grepOut := runCommand(grepCmd)
 	if grepOut == "" {
-		resultschannel <- PingReturn{website, false, -1}
+		resultsChannel <- PingReturn{website, false, -1}
 	} else {
 		latencyString := grepOut[strings.Index(grepOut, "time=")+5 : strings.Index(grepOut, "ms")]
 		latencyFloat, err := strconv.ParseFloat(latencyString, 64)
 		checkError(err)
-		resultschannel <- PingReturn{website, true, latencyFloat}
+		resultsChannel <- PingReturn{website, true, latencyFloat}
 	}
 }
 
-// Pinger executes the ping command sends stats to current channel
-func Pinger(gmp int, websites []string) {
+/*
+	@input gmp // set the environment variable GOMAXPROCS
+		   websites // a list of websites to be pinged
+	initiatePingRoutines sets GOMAXPROCS and calls go routines to ping websites given in the list
+*/
+func initiatePingRoutines(gmp int, websites []string) {
 	runtime.GOMAXPROCS(gmp)
-	resultschannel := make(chan PingReturn)
+	resultsChannel := make(chan PingReturn)
 	//var webinfocollection [][]string
 
 	//For each valid website entered, ping the website, send/receive the data to/from the channel, save the data for later output
 	for i := 0; i < RoutineCount; i++ {
 		if websites[i%len(websites)] != "" {
-			go ping(websites[i%len(websites)], resultschannel)
+			go ping(websites[i%len(websites)], resultsChannel)
 		}
 	}
 	for i := 0; i < RoutineCount; {
 		select {
-		case x, ok := <-resultschannel:
+		case x, ok := <-resultsChannel:
 			if ok {
 				pingRes = append(pingRes, x)
 				i++
@@ -92,15 +99,17 @@ func Pinger(gmp int, websites []string) {
 	}
 }
 
-// Plot is a function to plot the statistics of GOMAXPROCS vs program run time
+/*
+	@input gmpToRuntime // A map of coordinates where x=gmp value and y=runtime in microseconds
+	plot writes the html file that constructs the gmp vs. runtime graph
+*/
 func plot(gmpToRuntime map[int]int64) {
 	var keys []string
-	// var values []opts.BarData
 	var values []opts.ScatterData
-	for keyvalue := 0; keyvalue < len(gmpToRuntime); keyvalue++ {
-		keystring := strconv.Itoa(keyvalue)
-		keys = append(keys, keystring)
-		values = append(values, opts.ScatterData{Value: gmpToRuntime[keyvalue]})
+	for keyValue := 0; keyValue < len(gmpToRuntime); keyValue++ {
+		keyString := strconv.Itoa(keyValue)
+		keys = append(keys, keyString)
+		values = append(values, opts.ScatterData{Value: gmpToRuntime[keyValue]})
 	}
 
 	scatter := charts.NewScatter()
@@ -135,6 +144,11 @@ func plot(gmpToRuntime map[int]int64) {
 
 }
 
+/*
+	@input: cmd //a shell command to be run
+	@output: the command prompt output
+	This function executes the input command and returns its output
+*/
 func runCommand(cmd *exec.Cmd) string {
 	var out bytes.Buffer
 	cmd.Stdout = &out
@@ -145,14 +159,16 @@ func runCommand(cmd *exec.Cmd) string {
 	return out.String()
 }
 
+/*
+	@input: err //an error instance to be checked
+*/
 func checkError(err error) {
 	if err != nil {
 		panic(err)
 	}
 }
 
-// Sets the GOMAXPROCS value, and parallelizes ping command while increasing GOMAXPROCS value by one
-// in each thread.
+// main function
 func main() {
 	var err error
 	if len(os.Args) > 1 {
@@ -169,7 +185,7 @@ func main() {
 
 	//Initializing necessary variables
 	var input string
-	var inputsplice []string
+	var inputSplice []string
 
 	//Saving desired websites from a user to variables
 	fmt.Printf("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -\n")
@@ -181,16 +197,16 @@ func main() {
 	if input == "" || input == "q" {
 		os.Exit(0)
 	}
-	inputsplice = strings.Split(input, " ")
+	inputSplice = strings.Split(input, " ")
 
-	// Iterate through every possible value of GOMAXPROCS and run Pinger program for just the first entered website.
+	// Iterate through every possible value of GOMAXPROCS and run initiatePingRoutines program for just the first entered website.
 	// Return the runtime of each iteration.
 	fmt.Printf("(1) We will now compare the runtime of the program against all possible values of GOMAXPROCS. \n")
 	i := 1
 	for i < gmp+1 {
 		fmt.Printf("CPU CORES BEING CURRENTLY TESTED: %d \n", i)
 		start := time.Now()
-		Pinger(i, inputsplice)
+		initiatePingRoutines(i, inputSplice)
 		duration := time.Since(start)
 		gmpToRuntime[i] = duration.Microseconds()
 		i++
@@ -207,12 +223,12 @@ func main() {
 	checkError(err)
 	_, err = fmt.Fprintln(w, "-------\t -------\t -------\t -------\t -------\t -------\t -------\t")
 	checkError(err)
-	for i := range inputsplice {
+	for i := range inputSplice {
 		succCount := 0
 		totCount := 0
 		var pingSlice []float64
 		for j := range pingRes {
-			if pingRes[j].website == inputsplice[i] {
+			if pingRes[j].website == inputSplice[i] {
 				totCount += 1
 				if pingRes[j].success {
 					succCount += 1
@@ -225,7 +241,7 @@ func main() {
 			maximum, _ := stats.Max(pingSlice)
 			means, _ := stats.Mean(pingSlice)
 			stddev, _ := stats.StandardDeviation(pingSlice)
-			_, err = fmt.Fprintln(w, inputsplice[i], "\t",
+			_, err = fmt.Fprintln(w, inputSplice[i], "\t",
 				strconv.FormatFloat(minimum, 'f', 2, 64), "\t",
 				strconv.FormatFloat(means, 'f', 2, 64), "\t",
 				strconv.FormatFloat(maximum, 'f', 2, 64), "\t",
@@ -234,7 +250,7 @@ func main() {
 				strconv.FormatFloat(float64(succCount)/float64(totCount)*100.0, 'f', 2, 64)+"%", "\t")
 			checkError(err)
 		} else {
-			_, err = fmt.Fprintln(w, inputsplice[i], "\t", "NaN", "\t", "NaN", "\t", "NaN", "\t", "NaN", "\t", totCount, "\t", "0.00%", "\t")
+			_, err = fmt.Fprintln(w, inputSplice[i], "\t", "NaN", "\t", "NaN", "\t", "NaN", "\t", "NaN", "\t", totCount, "\t", "0.00%", "\t")
 		}
 	}
 	_, err = fmt.Fprintln(w, "\t")
