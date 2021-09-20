@@ -21,8 +21,8 @@ If input from command line was valid, an HTML file will be created. Open the cre
 1. Command Line Interface - Valid User Input
 ![final](https://user-images.githubusercontent.com/60116121/133951208-c88dff0c-a7da-4ef5-9df5-ac0a7542c0db.png)
 
-2. Command Line Interface - Valid User Input, User Specified GoRoutine Count
-https://media.discordapp.net/attachments/885635196500734013/889341033467498536/args1.png![image](https://user-images.githubusercontent.com/60116121/133952633-dbbc62f5-a047-4aeb-b38b-52200e7aa872.png)
+2. Command Line Interface - Valid User Input, User Specified GoRoutine Count 
+<img width="406" alt="args1" src="https://user-images.githubusercontent.com/60116121/133952711-e0084e5a-d29c-460b-9179-104341652641.png">
 
 3. Command Line Interface - User Quit Program
 <img width="900" alt="quit" src="https://user-images.githubusercontent.com/60116121/133951221-30d0ffb2-a05d-4ab3-88f7-097d80ee6ac5.png">
