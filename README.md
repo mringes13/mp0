@@ -32,7 +32,7 @@ If input from command line was valid, an HTML file will be created. Open the cre
 
 
 ## Workflow
-![MP0 Workflow Diagram](https://user-images.githubusercontent.com/60116121/133932682-9a37ebe8-20af-487f-95b2-b4035317fc1b.png)
+![MP0 Workflow Diagram-4](https://user-images.githubusercontent.com/60116121/133952461-c621afac-5cc9-4e80-a71a-e42e0318dbb5.png)
 
 ## Custom Data Structures
 1. PingReturn Struct 
