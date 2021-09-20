@@ -44,20 +44,22 @@ func MaxParallelism() int {
 	ping function pings the given website once and sends the returned value into resultsChanel
 */
 func ping(website string, resultsChannel chan PingReturn) {
-	pingCmd := exec.Command("ping", "-n", "1", "-a", website)
-	pingOut := runCommand(pingCmd)
+	var pingCmd *exec.Cmd
 	var grepCmd *exec.Cmd
 	if runtime.GOOS == "windows" {
+		pingCmd = exec.Command("ping", "-n", "1", website)
 		grepCmd = exec.Command("findstr", "time=")
 	} else {
-		grepCmd = exec.Command("grep", "times=")
+		pingCmd = exec.Command("ping", "-c", "1", website)
+		grepCmd = exec.Command("grep", "time=")
 	}
+	pingOut := runCommand(pingCmd)
 	grepCmd.Stdin = strings.NewReader(pingOut)
 	grepOut := runCommand(grepCmd)
 	if grepOut == "" {
 		resultsChannel <- PingReturn{website, false, -1}
 	} else {
-		latencyString := grepOut[strings.Index(grepOut, "time=")+5 : strings.Index(grepOut, "ms")]
+		latencyString := strings.TrimSpace(grepOut[strings.Index(grepOut, "time=")+5 : strings.Index(grepOut, "ms")])
 		latencyFloat, err := strconv.ParseFloat(latencyString, 64)
 		checkError(err)
 		resultsChannel <- PingReturn{website, true, latencyFloat}
@@ -137,7 +139,6 @@ func plot(gmpToRuntime map[int]int64) {
 			Position: "right",
 		}),
 	)
-	// Where the magic happens
 	f, _ := os.Create("bar.html")
 	err := scatter.Render(f)
 	checkError(err)
