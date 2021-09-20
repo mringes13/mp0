@@ -37,4 +37,5 @@ If input from command line was valid, an HTML file will be created. Open the cre
 
 ## References
 - The plotting function is a modified version of sample code from [Go E-Charts Examples](https://github.com/go-echarts/examples/blob/master/examples/scatter.go "Go E-Charts Examples").
+- The data collected from the output table invokes functions from [Go/montanaflynn/stats](https://github.com/montanaflynn/stats)
 - Our exact implementation of the `MaxParallelism()` function, which identifies and sets GOMAXPROCS to the maximum possible number of CPU Threads, was taken from this [github repository](https://gist.github.com/peterhellberg/5848304).
