@@ -139,7 +139,7 @@ func plot(gmpToRuntime map[int]int64) {
 			Position: "right",
 		}),
 	)
-	f, _ := os.Create("bar.html")
+	f, _ := os.Create("gomaxprocsvsruntime.html")
 	err := scatter.Render(f)
 	checkError(err)
 

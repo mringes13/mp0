@@ -1,4 +1,4 @@
-module github.com/mast/shell-ping
+module github.com/mast/shellPing
 
 go 1.17
 
