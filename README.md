@@ -3,14 +3,24 @@ MP0 is a simple application that pings desired websites, as defined by the user,
 This project was assigned to practice the newly learned Go-Routines and Go-Channels.
 
 ## How to Run
-### Step 1: Initialize ping of websites
+
+### Step 1: Clone Git Repository
+Clone the following git repository. https://github.com/mringes13/mp0.git
+
+### Step 2: Initialize ping of websites
 Start the analytical ping with `go run shellPing.go`
 
-###### If an error of the following form is triggered: "cannot find package 'github.com/go-echarts/go-echarts/v2/charts'", change module settings with `export GO111MODULE=on`. Then restart the program with `go run shellPing.go`.
-### Step 2: Interact with Command Line
+##### If an error of the following form is triggered: "cannot find package 'github.com/go-echarts/go-echarts/v2/charts'", change module settings with `export GO111MODULE=on`. Then restart the program with `go run shellPing.go`.
+
+##### If the error is not solved, install the following dependencies with the following: 
+`go get github.com/go-echarts/go-echarts`
+
+`go get github.com/montanaflynn/stats`
+
+### Step 3: Interact with Command Line
 Enter the website domains you wish you ping. You can input as many inputs as you want, but they must be separated by a white space. 
 Press ENTER to generate analysis of parallel pings. 
-### Step 3: Open the created HTML file
+### Step 4: Open the created HTML file
 If input from command line was valid, an HTML file will be created. Open the created HTML file to see the GOMAXPROCS vs. Program Run Time plot with `open gomaxprocsvsruntime.html`.
 
 
