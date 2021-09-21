@@ -74,7 +74,6 @@ func ping(website string, resultsChannel chan PingReturn) {
 func initiatePingRoutines(gmp int, websites []string) {
 	runtime.GOMAXPROCS(gmp)
 	resultsChannel := make(chan PingReturn)
-	//var webinfocollection [][]string
 
 	//For each valid website entered, ping the website, send/receive the data to/from the channel, save the data for later output
 	for i := 0; i < RoutineCount; i++ {
@@ -191,38 +190,47 @@ func main() {
 	//Saving desired websites from a user to variables
 	fmt.Printf("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -\n")
 	fmt.Printf("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -\n")
-	fmt.Printf("Please enter the websites you would like to ping; each separated with a space. Otherwise, enter 'q' to quit! ")
+	fmt.Printf("Hello! Please enter the websites you would like to ping; each separated with a space. Otherwise, enter 'q' to quit! ")
 	in := bufio.NewReader(os.Stdin)
 	input, _ = in.ReadString('\n')
 	input = strings.TrimSuffix(input, "\n")
-	if input == "" || input == "q" {
+	for input == "" {
+		fmt.Printf("Please enter the websites you would like to ping; each separated with a space. Otherwise, enter 'q' to quit! ")
+		in = bufio.NewReader(os.Stdin)
+		input, _ = in.ReadString('\n')
+		input = strings.TrimSuffix(input, "\n")
+	}
+	if input == "q" {
+		fmt.Println("You have quit the program by entering 'q'. Goodbye! \n")
 		os.Exit(0)
 	}
 	inputSplice = strings.Split(input, " ")
 
 	// Iterate through every possible value of GOMAXPROCS and run initiatePingRoutines program for just the first entered website.
 	// Return the runtime of each iteration.
-	fmt.Printf("(1) We will now compare the runtime of the program against all possible values of GOMAXPROCS. \n")
+	fmt.Printf("We will now compare the runtime of the program against all possible values of GOMAXPROCS. \n")
 	i := 1
 	for i < gmp+1 {
-		fmt.Printf("CPU CORES BEING CURRENTLY TESTED: %d \n", i)
+		fmt.Printf("# of CPU threads currently being tested: %d \n", i)
 		start := time.Now()
 		initiatePingRoutines(i, inputSplice)
 		duration := time.Since(start)
 		gmpToRuntime[i] = duration.Microseconds()
 		i++
 	}
-	fmt.Printf("The output for the relation between GOMAXPROCS and the program run time has completed. \n\n\n")
+	fmt.Printf("The output for the relation between GOMAXPROCS and the program run time has completed. \n")
+	fmt.Printf("A file gomaxprocsvsruntime.html has been created in the current directory with a visual representation of CPU threads versus program run time. \n\n")
 	//Plot gmpToRunTime -> Output Graph
 	plot(gmpToRuntime)
 
 	w := new(tabwriter.Writer)
-	w.Init(os.Stdout, 8, 8, 3, '\t', 0)
+	w.Init(os.Stdout, 7, 8, 3, '\t', 0)
 	_, err = fmt.Fprintln(w, "\t")
 	checkError(err)
+	fmt.Println("The ping statistics for the input websites will now be displayed below.")
 	_, err = fmt.Fprintln(w, "WEBSITE\t MIN\t AVG\t MAX\t STDDEV\t TOTAL\t PERCENT\t")
 	checkError(err)
-	_, err = fmt.Fprintln(w, "-------\t -------\t -------\t -------\t -------\t -------\t -------\t")
+	_, err = fmt.Fprintln(w, "-------\t -----\t -----\t -----\t ------\t ------\t -------\t")
 	checkError(err)
 	for i := range inputSplice {
 		succCount := 0
