@@ -26,8 +26,7 @@ If you wish to quit the program, enter `q`.
 If input from command line was valid, an HTML file will be created. Open the created HTML file to see the GOMAXPROCS vs. Program Run Time plot with `open gomaxprocsvsruntime.html`.
 
 
-#### User Ping Websites Process
-- To quit the program when being asked to input websites, return 'q'.
+### User Ping Websites Process
 - To quit the program while running, interact with the system command line (i.e. OS Terminal - Control + C)
 - Enter the desired websites to be pinged.
 - To specify the number of GoRoutines, start the program with 'go run github.com/mast/shellPing 10'
