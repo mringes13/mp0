@@ -8,7 +8,7 @@ This project was assigned to practice the newly learned Go-Routines and Go-Chann
 Clone the following git repository with `git clone https://github.com/mringes13/mp0.git`.
 
 ### Step 2: Initialize ping of websites
-Change the current directory to be within the cloned folder. Start the analytical ping with `go run shellPing.go`
+Change the current directory to be within the recently cloned folder. Start the analytical ping with `go run shellPing.go`
 
 ##### If an error of the following form is triggered: "cannot find package 'github.com/go-echarts/go-echarts/v2/charts'", change module settings with `export GO111MODULE=on`. Then restart the program with `go run shellPing.go`.
 
