@@ -5,7 +5,7 @@ This project was assigned to practice the newly learned Go-Routines and Go-Chann
 ## How to Run
 
 ### Step 1: Clone Git Repository
-Clone the following git repository. https://github.com/mringes13/mp0.git
+Clone the following git repository with `git clone https://github.com/mringes13/mp0.git`.
 
 ### Step 2: Initialize ping of websites
 Start the analytical ping with `go run shellPing.go`
