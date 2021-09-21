@@ -33,11 +33,12 @@ If input from command line was valid, an HTML file will be created. Open the cre
 <img width="900" alt="quit" src="https://user-images.githubusercontent.com/60116121/133951221-30d0ffb2-a05d-4ab3-88f7-097d80ee6ac5.png">
 
 3. Output GOMAXPROCS vs Runtime Plot
-
+![runtime_analysis](https://user-images.githubusercontent.com/60116121/134258272-1b832d70-6672-4375-8629-d3ea5661b3be.png)
 
 
 ## Workflow
-![MP0 Workflow Diagram-4](https://user-images.githubusercontent.com/60116121/133952461-c621afac-5cc9-4e80-a71a-e42e0318dbb5.png)
+![workflow](https://user-images.githubusercontent.com/60116121/134258300-e17f0a46-1ab0-4b75-80de-d51604cddbab.png)
+
 
 ## Custom Data Structures
 1. PingReturn Struct 
