@@ -5,6 +5,8 @@ This project was assigned to practice the newly learned Go-Routines and Go-Chann
 ## How to Run
 ### Step 1: Initialize ping of websites
 Start the analytical ping with `go run shellPing.go`
+
+###### If an error of the following form is trigged: "cannot find package 'github.com/go-echarts/go-echarts/v2/charts'", change module settings with `export GO111MODULE=on`. Then restart the program with `go run shellPing.go`.
 ### Step 2: Interact with Command Line
 Enter the website domains you wish you ping. You can input as many inputs as you want, but they must be separated by a white space. 
 Press ENTER to generate analysis of parallel pings. 
