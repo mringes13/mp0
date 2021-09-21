@@ -46,9 +46,9 @@ If input from command line was valid, an HTML file will be created. Open the cre
 `var gmpToRuntime = make(map[int]int64)`
 
 ## Exit Code
--`0`: Successful
--`1`: Incorrect command line input format
--`2`: External package function error
+- `0`: Successful
+- `1`: Incorrect command line input format
+- `2`: External package function error
 
 ## References
 - The plotting function is a modified version of sample code from [Go E-Charts Examples](https://github.com/go-echarts/examples/blob/master/examples/scatter.go "Go E-Charts Examples").
