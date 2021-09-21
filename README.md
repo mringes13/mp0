@@ -20,6 +20,8 @@ Change the current directory to be within the recently cloned folder. Start the 
 ### Step 3: Interact with Command Line
 Enter the website domains you wish you ping. You can input as many inputs as you want, but they must be separated by a white space. 
 Press ENTER to generate analysis of parallel pings. 
+
+If you wish to quit the program, enter `q`.
 ### Step 4: Open the created HTML file
 If input from command line was valid, an HTML file will be created. Open the created HTML file to see the GOMAXPROCS vs. Program Run Time plot with `open gomaxprocsvsruntime.html`.
 
