@@ -20,15 +20,16 @@ import (
 var RoutineCount int
 var pingRes []PingReturn
 
-// PingReturn is the return instance of a ping command
+// PingReturn is the return instance of a shell ping command. 
+// Its fields describe the website name, whether the ping was successful, and the latency in milliseconds.
 type PingReturn struct {
-	website string  //The site at which ping command is executed
-	success bool    //Whether the packet returned successfully
-	latency float64 //The network latency of the website, if ! success, latency=-1
+	website string  // The site toward which ping command is executed
+	success bool    // Success or failure of the ping
+	latency float64 // The network latency of the website. If ping is unsuccessful, latency=-1
 }
 
 // MaxParallelism returns the max GOMAXPROCS value, by comparing runtime.GOMAXPROCS
-// with number of CPUs, and returning larger value
+// with number of CPU threads, and returning larger value
 func MaxParallelism() int {
 	maxProcess := runtime.GOMAXPROCS(0)
 	numCPU := runtime.NumCPU()
@@ -39,9 +40,10 @@ func MaxParallelism() int {
 }
 
 /*
-	@input website //A single instance of website to be pinged
+	@input website // A single instance of website to be pinged
 		   resultsChannel // An unbuffered channel that stores a PingReturn instance
-	ping function pings the given website once and sends the returned value into resultsChanel
+	The ping() function executes the shell ping command once on the given website 
+	and sends the a string of the standard output into resultsChannel.
 */
 func ping(website string, resultsChannel chan PingReturn) {
 	var pingCmd *exec.Cmd
@@ -67,15 +69,17 @@ func ping(website string, resultsChannel chan PingReturn) {
 }
 
 /*
-	@input gmp // set the environment variable GOMAXPROCS
-		   websites // a list of websites to be pinged
-	initiatePingRoutines sets GOMAXPROCS and calls go routines to ping websites given in the list
+	@input gmp // Sets the environment variable GOMAXPROCS
+		   websites // A list of websites to be pinged
+	initiatePingRoutines() iteratively sets GOMAXPROCS values 
+	and calls go-routines to ping websites, given in the string array,
+	in parallel.
 */
 func initiatePingRoutines(gmp int, websites []string) {
 	runtime.GOMAXPROCS(gmp)
 	resultsChannel := make(chan PingReturn)
 
-	//For each valid website entered, ping the website, send/receive the data to/from the channel, save the data for later output
+	// For each valid website entered, ping the website, send/receive the data to/from the channel, save the data for later output
 	for i := 0; i < RoutineCount; i++ {
 		if websites[i%len(websites)] != "" {
 			go ping(websites[i%len(websites)], resultsChannel)
@@ -101,8 +105,8 @@ func initiatePingRoutines(gmp int, websites []string) {
 }
 
 /*
-	@input gmpToRuntime // A map of coordinates where x=gmp value and y=runtime in microseconds
-	plot writes the html file that constructs the gmp vs. runtime graph
+	@input gmpToRuntime // A map of coordinates where x=gmp (GOMAXPROCS) value and y=runtime in microseconds
+	plot() writes the html file that constructs the gmp vs. runtime graph
 */
 func plot(gmpToRuntime map[int]int64) {
 	var keys []string
@@ -145,8 +149,8 @@ func plot(gmpToRuntime map[int]int64) {
 }
 
 /*
-	@input: cmd //a shell command to be run
-	@output: the command prompt output
+	@input: cmd // A shell command to be run
+	@output: The command prompt output
 	This function executes the input command and returns its output
 */
 func runCommand(cmd *exec.Cmd) string {
@@ -160,7 +164,7 @@ func runCommand(cmd *exec.Cmd) string {
 }
 
 /*
-	@input: err //an error instance to be checked
+	@input: err // An error instance to be checked
 */
 func checkError(err error) {
 	if err != nil {
@@ -172,6 +176,7 @@ func checkError(err error) {
 func main() {
 	var err error
 	if len(os.Args) > 1 {
+		// Converts user-input arguments from string to int
 		RoutineCount, err = strconv.Atoi(os.Args[1])
 		if err != nil {
 			RoutineCount = 100
@@ -181,13 +186,13 @@ func main() {
 	}
 	var gmpToRuntime = make(map[int]int64) // Create an int slice to map GOMAXPROCS values to runtime in nanoseconds.
 
-	gmp := MaxParallelism() // Set the max GOMAXPROCS value
+	gmp := MaxParallelism() // Set the maximum GOMAXPROCS value possible on the client's system.
 
-	//Initializing necessary variables
+	// Initializing data structures to store user-input website names.
 	var input string
 	var inputSplice []string
 
-	//Saving desired websites from a user to variables
+	// Saving user-input websites to an string slice, to be fed into initiatePingRoutines() function later.
 	fmt.Printf("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -\n")
 	fmt.Printf("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -\n")
 	fmt.Printf("Hello! Please enter the websites you would like to ping; each separated with a space. Otherwise, enter 'q' to quit! ")
@@ -206,23 +211,25 @@ func main() {
 	}
 	inputSplice = strings.Split(input, " ")
 
-	// Iterate through every possible value of GOMAXPROCS and run initiatePingRoutines program for just the first entered website.
-	// Return the runtime of each iteration.
+	// Iterate through every possible value of GOMAXPROCS and run initiatePingRoutines() program for all the user-input websites.
+	// Return the runtime of each iteration and store it in the gmpToRuntime map. 
 	fmt.Printf("We will now compare the runtime of the program against all possible values of GOMAXPROCS. \n")
 	i := 1
 	for i < gmp+1 {
 		fmt.Printf("# of CPU threads currently being tested: %d \n", i)
-		start := time.Now()
+		start := time.Now() // Begin timing of ping program at current GOMAXPROCS setting
 		initiatePingRoutines(i, inputSplice)
-		duration := time.Since(start)
+		duration := time.Since(start) // End timing of ping program at current GOMAXPROCS setting
 		gmpToRuntime[i] = duration.Microseconds()
 		i++
 	}
 	fmt.Printf("The output for the relation between GOMAXPROCS and the program run time has completed. \n")
 	fmt.Printf("A file gomaxprocsvsruntime.html has been created in the current directory with a visual representation of CPU threads versus program run time. \n\n")
-	//Plot gmpToRunTime -> Output Graph
+	
+	// Plot gmpToRunTime -> Output HTML Graph
 	plot(gmpToRuntime)
 
+	// Print out a table of latency statistics for each website pinged.
 	w := new(tabwriter.Writer)
 	w.Init(os.Stdout, 7, 8, 3, '\t', 0)
 	_, err = fmt.Fprintln(w, "\t")
